@@ -1,0 +1,35 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from  sqlalchemy.orm import DeclarativeBase
+
+
+
+DATABASE_URL = "sqlite:///todos.db"
+
+
+#  manages communication with the database
+#  FastAPI -> Engine -> Database
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
+)
+
+
+SessionLocal = sessionmaker(
+    autoflush=False,
+    autocommit= False,
+    bind=engine
+)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+def get_db():
+    db = SessionLocal()
+    try: 
+        yield db
+    
+    finally:
+        db.close()
