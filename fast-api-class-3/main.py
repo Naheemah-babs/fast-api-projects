@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Response
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, Response, status
+from pydantic import BaseModel, Field, EmailStr
 
 app = FastAPI()
 
@@ -9,7 +9,7 @@ class Student(BaseModel):
         max_length = 8,
         default = "Carrie"
     )
-    email: str
+    email: EmailStr
     year_of_birth: int = Field(
         ge = 2005,
         le = 2025
