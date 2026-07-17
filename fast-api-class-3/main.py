@@ -1,34 +1,31 @@
-from fastapi import FastAPI, Response, status, HTTPException
-from pydantic import BaseModel, Field, EmailStr
+from fastapi import FastAPI, Response, status, HTTPException, Depends
+from sqlalchemy.orm import Session
 
-app = FastAPI()
+from database import engine, get_db
+from schemas import  TodoCreate, TodoUpdate, TodoResponse
+from models import Base, Todo
 
-class Student(BaseModel):
-    name: str = Field(
-        min_length = 3,
-        max_length = 8,
-        default = "Carrie"
+Base.metadata.create_all(bind=engine)
+app = FastAPI(title="Todo API", description="A simple Todo API with FastAPI and SQLAlchemy", version="1.0.0")
+
+# create todo
+@app.post(
+    "/todos",
+    response_model=TodoResponse,
+    status_code=status.HTTP_201_CREATED,
     )
-    email: EmailStr
-    year_of_birth: int = Field(
-        ge = 2005,
-        le = 2025
-    )
-    age: int | None = None
+def create_todo(payload:TodoCreate, db: Session = Depends(get_db)):
+    todo = Todo(**payload.model_dump())
+    db.add(todo)
+    db.commit()
+    db.refresh(todo)
+    return todo
 
-@app.post("/student", status_code = status.HTTP_201_CREATED)
-def create_student(student: Student):
-    cal_age = 2025 - student.year_of_birth
-    student.age = cal_age
-    database = ["ade@ade.com", "ola@ola.com", "jide@jide.com"]
-
-    if student.email in database:
-        raise HTTPException(
-            detail = "Email already exists",
-            status_code = status.HTTP_409_CONFLICT
-        )
-
-    return{
-        "message": "student created",
-        "student": student
-    }
+#read all todos
+@app.get(
+    "/todos",
+    response_model=list[TodoResponse],
+    status_code=status.HTTP_200_OK
+)
+def list_todos(db: Session = Depends(get_db)):
+    return db.query(Todo).all()

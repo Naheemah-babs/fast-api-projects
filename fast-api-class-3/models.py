@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Integer, String, Boolean, Datetime
+from sqlalchemy import Integer, String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
@@ -18,4 +18,4 @@ class Todo(Base):
     )
     description: Mapped[str | None] = mapped_column(String)
     completed:  Mapped[bool] = mapped_column(Boolean)
-    created_at: Mapped[datetime] = mapped_column(Datetime, default=lambda:datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda:datetime.now(timezone.utc))
