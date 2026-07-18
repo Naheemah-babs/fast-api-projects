@@ -51,3 +51,14 @@ def update_todo(todo_id:int, payload: TodoUpdate, db: Session = Depends(get_db))
     db.commit()
     db.refresh(todo)
     return todo
+
+#delete todo
+@app.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_todo(todo_id:int, db: Session = Depends(get_db)):
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if not todo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Todo with id {todo_id} not found")
+    
+    db.delete(todo)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
