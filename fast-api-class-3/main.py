@@ -22,13 +22,13 @@ def create_todo(payload:TodoCreate, db: Session = Depends(get_db)):
     return todo
 
 #read all todos
-@app.get(
-    "/todos",
-    response_model=list[TodoResponse],
-    status_code=status.HTTP_200_OK
-)
-def list_todos(db: Session = Depends(get_db)):
-    return db.query(Todo).all()
+# @app.get(
+#     "/todos",
+#     response_model=list[TodoResponse],
+#     status_code=status.HTTP_200_OK
+# )
+# def list_todos(db: Session = Depends(get_db)):
+#     return db.query(Todo).all()
 
 #read one
 @app.get("/todos/{todo_id}", response_model=TodoResponse, status_code=status.HTTP_200_OK)
@@ -62,3 +62,25 @@ def delete_todo(todo_id:int, db: Session = Depends(get_db)):
     db.delete(todo)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+#filtering wih query params
+@app.get("/todos", response_model=list[TodoResponse])
+def list_todo_q(completed:bool | None = None, search:str | None = None, db: Session = Depends(get_db)):
+    query = db.query(Todo)
+     
+    if completed is not None:
+        query = query.filter(Todo.completed == completed)
+
+    if search: 
+        query = query.filter(Todo.title.ilike(f"%{search}%"))
+
+    return query.all()
+
+# @app.get("/todos/{todo_id}", response_model=TodoResponse)
+# def list_todo_q(todo_id:int, db: Session = Depends(get_db)):
+#     query = db.query(Todo)
+     
+#     if completed is not None:
+#         query = query.filter(Todo.completed == completed)
+
+#     return query.all()
