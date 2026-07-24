@@ -5,7 +5,10 @@ from database import engine, get_db
 from schemas import  TodoCreate, TodoUpdate, TodoResponse
 from models import Base, Todo
 
-Base.metadata.create_all(bind=engine)
+# Create all the database tables defined in my models, if they don't already exist.
+Base.metadata.create_all(bind=engine) 
+
+
 app = FastAPI(title="Todo API", description="A simple Todo API with FastAPI and SQLAlchemy", version="1.0.0")
 
 # create todo
